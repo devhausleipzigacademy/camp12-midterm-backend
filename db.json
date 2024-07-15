@@ -8,6 +8,20 @@
       "password": "test123",
       "profileImg": "",
       "bookmarks": []
+    },
+    {
+      "id": "de8c4260-94d2-48cd-a80a-f8a57435f33b",
+      "email": "john@doe3.com",
+      "firstName": "Nikita",
+      "lastName": "Nakropin",
+      "password": "passwort3"
+    },
+    {
+      "uuid": "3abc9d6e-c418-485b-9012-d531c48c126d",
+      "firstName": "Maximum",
+      "lastName": "Minimum",
+      "email": "no@mail",
+      "password": "ChangeMe123!"
     }
   ],
   "screening": [
@@ -15,13 +29,22 @@
       "id": "d0344dec-0018-494f-855b-8e8f61050837",
       "date": "16/07/2024",
       "time": "17:00",
-      "bookedSeats": ["A1", "A2", "F3"]
+      "bookedSeats": [
+        "A1",
+        "A2",
+        "F3"
+      ]
     },
     {
       "id": "458cc6ed-dfa3-4c62-8d08-4249a7720936",
       "date": "16/07/2024",
       "time": "20:00",
-      "bookedSeats": ["A5", "A6", "C5", "C6"]
+      "bookedSeats": [
+        "A5",
+        "A6",
+        "C5",
+        "C6"
+      ]
     }
   ]
 }
