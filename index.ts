@@ -1,7 +1,7 @@
 import express from "express";
-import { helloRouter } from "./routes/hello.js";
-import { usersRouter } from "./routes/users.js";
-import { reservationsRouter } from "./routes/reservations.js"; // Import the reservations router
+import { helloRouter } from "./routes/hello";
+import { usersRouter } from "./routes/users";
+import { reservationsRouter } from "./routes/reservations"; // Import the reservations router
 
 // Initialize application
 const app = express();
