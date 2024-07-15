@@ -1,6 +1,7 @@
 import express from "express";
-import { helloRouter } from "./routes/hello";
-import { usersRouter } from "./routes/users";
+import { helloRouter } from "./routes/hello.js";
+import { usersRouter } from "./routes/users.js";
+import { reservationsRouter } from "./routes/reservations.js"; // Import the reservations router
 
 // Initialize application
 const app = express();
@@ -10,6 +11,7 @@ app.use(express.json());
 // Define an endpoint
 app.use("/hello", helloRouter);
 app.use("/users", usersRouter);
+app.use("/reservations", reservationsRouter); // Use the reservations router
 
 // Run server
 app.listen(3000, () => {
