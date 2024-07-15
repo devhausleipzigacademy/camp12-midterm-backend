@@ -1,14 +1,27 @@
 {
   "users": [
     {
-      "username": "dnmct",
-      "firstName": "Dan",
-      "lastName": "McAtee"
+      "id": "5f114479-a8ff-4b73-aa43-1d5cd23b83cf",
+      "email": "john@doe.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "password": "test123",
+      "profileImg": "",
+      "bookmarks": []
+    }
+  ],
+  "screening": [
+    {
+      "id": "d0344dec-0018-494f-855b-8e8f61050837",
+      "date": "16/07/2024",
+      "time": "17:00",
+      "bookedSeats": ["A1", "A2", "F3"]
     },
     {
-      "username": "birdman",
-      "firstName": "Julian",
-      "lastName": "Vogel"
+      "id": "458cc6ed-dfa3-4c62-8d08-4249a7720936",
+      "date": "16/07/2024",
+      "time": "20:00",
+      "bookedSeats": ["A5", "A6", "C5", "C6"]
     }
   ]
 }
