@@ -21,26 +21,29 @@ function getDB() {
   const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
   return JSON.parse(dbFile) as DB;
 }
-
+// Router
 export const loginRouter = Router();
-// reading data from db
+// Reading data from db
 loginRouter.get("/", (_, res) => {
   const db = getDB();
   res.json(db.users);
 });
 
-// comparing data from login to db
+// Comparing data from login to db
 loginRouter.post("/", (req, res) => {
+  // creating loginEmail & loginPassword
   const { loginEmail, loginPassword } = req.body;
-  console.log(loginEmail);
-  console.log(loginPassword);
   const db = getDB();
+  // finding userEmail
   const user = db.users.find((user) => user.email === loginEmail);
+  // when user doesnt exist: 404
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
+  //  when user password doesnt match loginPassword
   if (loginPassword !== user.password) {
     return res.status(401).json({ message: "Wrong Password" });
   }
+  // if successfull:
   return res.status(200).json({ message: `Welcome ${user.firstName}` });
 });
