@@ -1,7 +1,7 @@
 import express from "express";
 import { helloRouter } from "./routes/hello";
 import { usersRouter } from "./routes/users";
-import { custimasationRouter } from "./routes/cust-profile";
+import { customisationRouter } from "./routes/cust-profile";
 
 // Initialize application
 const app = express();
@@ -11,7 +11,7 @@ app.use(express.json());
 // Define an endpoint
 app.use("/hello", helloRouter);
 app.use("/users", usersRouter);
-app.use("/profile", custimasationRouter);
+app.use("/profile", customisationRouter);
 
 // endpoint profile custimasation
 

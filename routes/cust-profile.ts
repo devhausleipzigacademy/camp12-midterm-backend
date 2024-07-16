@@ -15,14 +15,14 @@ type DB = {
   users: User[];
 };
 
-export const custimasationRouter = Router();
+export const customisationRouter = Router();
 
 function getDB() {
   const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
   return JSON.parse(dbFile) as DB;
 }
 
-custimasationRouter.patch("/:id", (req, res) => {
+customisationRouter.patch("/:id", (req, res) => {
   const { id } = req.params;
   console.log(id);
 
