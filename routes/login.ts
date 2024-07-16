@@ -23,12 +23,13 @@ function getDB() {
 }
 
 export const loginRouter = Router();
-
+// reading data from db
 loginRouter.get("/", (_, res) => {
   const db = getDB();
   res.json(db.users);
 });
 
+// comparing data from login to db
 loginRouter.post("/", (req, res) => {
   const { loginEmail, loginPassword } = req.body;
   console.log(loginEmail);
