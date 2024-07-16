@@ -3,7 +3,7 @@ import fs from "fs";
 
 type User = {
   uuid: string;
-  bookmarks: number[]
+  bookmarks: string[]
 };
 
 type DB = {
@@ -29,13 +29,13 @@ bookmarkRouter.get("/:uuid", (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
-  res.json(user);
+  res.json(user.bookmarks);
 });
 
 bookmarkRouter.post("/:uuid/:movieId", (req, res) => {
   const db = getDB();
   const uuid = req.params.uuid;
-  const movieId = Number(req.params.movieId);
+  const movieId = req.params.movieId;
   const userIndex = db.users.findIndex(u => u.uuid === uuid);
 
   //Return 404 if no user found

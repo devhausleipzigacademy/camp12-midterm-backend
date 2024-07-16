@@ -1,8 +1,11 @@
 import express from "express";
 import { helloRouter } from "./routes/hello";
 import { usersRouter } from "./routes/users";
-import { loginRouter } from "./routes/registration";
 import {bookmarkRouter} from "./routes/bookmark"
+import { customisationRouter } from "./routes/cust-profile";
+import { registrationRouter  } from "./routes/registration";
+import { loginRouter } from "./routes/login";
+import { reservationsRouter } from "./routes/reservations"; // Import the reservations router
 
 // Initialize application
 const app = express();
@@ -13,7 +16,11 @@ app.use(express.json());
 app.use("/hello", helloRouter);
 app.use("/users", usersRouter);
 app.use("/login", loginRouter)
-app.use("/bookmarks", bookmarkRouter)
+app.use("/bookmarks", bookmarkRouter);
+app.use("/profile", customisationRouter);
+app.use("/registration", registrationRouter )
+app.use("/login", loginRouter);
+app.use("/reservations", reservationsRouter);
 
 // Run server
 app.listen(3000, () => {
