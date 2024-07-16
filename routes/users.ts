@@ -61,6 +61,7 @@ usersRouter.patch("/:username", (req, res) => {
       };
     }),
   };
+
   const updatedUser = updatedDb.users.find(
     (user) => user.username === username
   );
