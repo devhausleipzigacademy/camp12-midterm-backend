@@ -23,11 +23,6 @@ function getDB() {
 }
 // Router
 export const loginRouter = Router();
-// Reading data from db
-loginRouter.get("/", (_, res) => {
-  const db = getDB();
-  res.json(db.users);
-});
 
 // Comparing data from login to db
 loginRouter.post("/", (req, res) => {
@@ -45,5 +40,5 @@ loginRouter.post("/", (req, res) => {
     return res.status(401).json({ message: "Wrong Password" });
   }
   // if successfull:
-  return res.status(200).json({ message: `Welcome ${user.firstName}` });
+  return res.status(200).json({ user: user });
 });
