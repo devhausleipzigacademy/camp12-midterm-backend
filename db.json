@@ -7,23 +7,33 @@
       "lastName": "Doe",
       "password": "test123",
       "profileImg": "",
-      "bookmarks": []
+      "bookmarks": [
+        "123123"
+      ]
     },
     {
-      "id": "de8c4260-94d2-48cd-a80a-f8a57435f33b",
-      "email": "john@doe3.com",
+      "id": "40a84c45-efb9-439d-88f2-96f5b2f73b3e",
       "firstName": "Nikita",
       "lastName": "Nakropin",
-      "password": "passwort3",
-      "bookmarks": ["94997", "653326"]
+      "email": "swag@swag.swag",
+      "password": "ChangeMe123!",
+      "profileImg": "",
+      "bookmarks": [
+        "94997",
+        "653326"
+      ]
     },
     {
-      "uuid": "3abc9d6e-c418-485b-9012-d531c48c126d",
-      "firstName": "Maximum",
-      "lastName": "Minimum",
+      "id": "d3f68929-77f0-4da7-847e-18b09e35a8dc",
+      "firstName": "unknown",
+      "lastName": "unknown",
       "email": "no@mail",
       "password": "ChangeMe123!",
-      "bookmarks": ["94997", "653346"]
+      "profileImg": "",
+      "bookmarks": [
+        "94997",
+        "653346"
+      ]
     }
   ],
   "screening": [
