@@ -7,15 +7,7 @@
       "lastName": "Doe",
       "password": "test123",
       "profileImg": "",
-      "bookmarks": []
-    },
-    {
-      "loginPassword": "test123",
-      "loginEmail": "john@doe.com"
-    },
-    {
-      "loginPassword": "test122",
-      "loginEmail": "john@doe.com"
+      "bookmarks": ["94997", "653346"]
     }
   ],
   "screening": [
