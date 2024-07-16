@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "uuid": "5f114479-a8ff-4b73-aa43-1d5cd23b83cf",
+      "id": "5f114479-a8ff-4b73-aa43-1d5cd23b83cf",
       "email": "john@doe.com",
       "firstName": "Basti",
       "lastName": "Doe",
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "uuid": "40a84c45-efb9-439d-88f2-96f5b2f73b3e",
+      "id": "40a84c45-efb9-439d-88f2-96f5b2f73b3e",
       "firstName": "Nikita",
       "lastName": "Nakropin",
       "email": "swag@swag.swag",
@@ -24,7 +24,7 @@
       ]
     },
     {
-      "uuid": "d3f68929-77f0-4da7-847e-18b09e35a8dc",
+      "id": "d3f68929-77f0-4da7-847e-18b09e35a8dc",
       "firstName": "unknown",
       "lastName": "unknown",
       "email": "no@mail",

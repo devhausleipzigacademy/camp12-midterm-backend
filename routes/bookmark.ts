@@ -2,7 +2,7 @@ import { Router } from "express";
 import fs from "fs";
 
 type User = {
-  uuid: string;
+  id: string;
   bookmarks: string[]
 };
 
@@ -23,7 +23,7 @@ export const bookmarkRouter = Router();
 bookmarkRouter.get("/:uuid", (req, res) => {
   const db = getDB();
   const uuid = req.params.uuid;
-  const user = db.users.find(u => u.uuid === uuid);
+  const user = db.users.find(u => u.id === uuid);
   
   //Return 404 if no user found
   if (!user) {
@@ -36,7 +36,7 @@ bookmarkRouter.post("/:uuid/:movieId", (req, res) => {
   const db = getDB();
   const uuid = req.params.uuid;
   const movieId = req.params.movieId;
-  const userIndex = db.users.findIndex(u => u.uuid === uuid);
+  const userIndex = db.users.findIndex(u => u.id === uuid);
 
   //Return 404 if no user found
   if (userIndex === -1) {
