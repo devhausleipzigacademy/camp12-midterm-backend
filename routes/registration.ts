@@ -31,16 +31,16 @@ const defaultUser: User = {
 };
 
 // Router
-export const loginRouter = Router();
+export const registrationRouter  = Router();
 
 // Get DataBase
-loginRouter.get("/", (_, res) => {
+registrationRouter .get("/", (_, res) => {
   const db = getDB();
   res.json(db.users);
 });
 
 // Add to Database
-loginRouter.post("/", (req, res) => {
+registrationRouter .post("/", (req, res) => {
     // Generate uuid
     const uuid = uuidv4();
     const newUser: User = {
