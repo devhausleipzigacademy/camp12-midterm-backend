@@ -15,8 +15,6 @@ function getDB(): DB {
   return JSON.parse(dbFile) as DB;
 }
 
-
-
 export const bookmarkRouter = Router();
 
 // Send User with bookmarks back
