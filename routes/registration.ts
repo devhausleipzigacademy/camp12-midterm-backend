@@ -8,7 +8,9 @@ type User = {
   firstName: string;
   lastName: string;
   email: string;
-  password: string
+  password: string;
+  profileImg: string;
+  bookmarks: string[]
 };
 
 type DB = {
@@ -27,7 +29,9 @@ const defaultUser: User = {
     firstName: "unknown",
     lastName: "unknown",
     email: "no@mail",
-    password: "ChangeMe123!" 
+    password: "ChangeMe123!" ,
+    profileImg: "",
+    bookmarks: []
 };
 
 // Router
