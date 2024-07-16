@@ -28,6 +28,14 @@ customisationRouter.patch("/:id", (req, res) => {
 
   const updatedContents = req.body;
   const db = getDB();
+
+  // finding user
+  const user = db.users.find((user) => user.id === id);
+  // when user doesnt exist: 404
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
   const updatedDb = {
     ...db,
     users: db.users.map((user) => {
