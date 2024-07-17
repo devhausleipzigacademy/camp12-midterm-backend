@@ -19,7 +19,7 @@ type ScreeningFromDB = {
 
 export const timesRouter = Router();
 
-timesRouter.get("/", async (_, res) => {
+timesRouter.get("/:date", async (req, res) => {
   // const db = getDB();
   // console.log(db);
 
@@ -27,7 +27,11 @@ timesRouter.get("/", async (_, res) => {
   //   .filter((screening: Screening) => screening.bookedSeats.length < SeatsTotal)
   //   .map((screening: Screening) => screening.time);
 
-  const screenings = await sql<ScreeningFromDB[]>`SELECT * FROM screenings`;
+  const date = req.params.date;
+
+  const screenings = await sql<
+    ScreeningFromDB[]
+  >`SELECT * FROM screenings WHERE date = ${date}`;
 
   const availableTimes = screenings
     .filter(

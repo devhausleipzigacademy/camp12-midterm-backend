@@ -30,10 +30,10 @@ app.use("/reservations", reservationsRouter);
 
 app.get("/setup", async (_, res) => {
   console.log("Clean database");
+  await sql`DROP TABLE IF EXISTS reservations;`;
   await sql`DROP TABLE IF EXISTS bookmarks;`;
   await sql`DROP TABLE IF EXISTS screenings;`;
   await sql`DROP TABLE IF EXISTS users;`;
-  await sql`DROP TABLE IF EXISTS reservations;`;
 
   console.log("🧩 Creating users table...");
   await sql`
@@ -95,8 +95,8 @@ app.get("/setup", async (_, res) => {
     INSERT INTO screenings
     (date, time, booked_seats, movie_id)
     VALUES
-    ('21/07/2024', '17:00', 'A1,A2,F3', '1022789'),
-    ('17/07/2024', '12:00', 'C3,C4', '1010581');
+    ('21-07-2024', '17:00', 'A1,A2,F3', '1022789'),
+    ('17-07-2024', '12:00', 'C3,C4', '1010581');
   `;
 
   await sql`
