@@ -1,7 +1,7 @@
 import { Router } from "express";
 import fs from "fs";
 import { sql } from "../lib/db";
-import { User, UserFromDB } from "../lib/types";
+import { UserFromDB } from "../lib/types";
 
 // function getDB() {
 //   const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });

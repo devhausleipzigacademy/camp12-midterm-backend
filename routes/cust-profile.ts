@@ -1,54 +1,77 @@
 import { Router } from "express";
 import fs from "fs";
+import { User } from "../lib/types";
+import { sql } from "../lib/db";
+import { UserFromDB } from "../lib/types";
+import { usersRouter } from "./users";
 
-type User = {
-  id: string;
+type Created = {
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   password: string;
-  profileImg: string;
-  bookmarks: string[];
+  avatar_image: string | null;
 };
 
-type DB = {
-  users: User[];
-};
+export const customizationRouter = Router();
 
-export const customisationRouter = Router();
-
-function getDB() {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  return JSON.parse(dbFile) as DB;
-}
-
-customisationRouter.patch("/:id", (req, res) => {
+customizationRouter.patch("/:id", async (req, res) => {
+  // getting user via id
   const { id } = req.params;
-  console.log(id);
+  const createdContents: Created = req.body;
+  const user = await sql<UserFromDB[]>`SELECT * FROM users WHERE id = ${id} `;
+  console.log(user);
 
-  const updatedContents = req.body;
-  const db = getDB();
+  const updatedUser = sql`
+  update users set
+  email = ${createdContents.email},
+  first_name = ${createdContents.first_name},
+  last_name =  ${createdContents.last_name},
+  password =  ${createdContents.password},
+  avatar_image =  ${createdContents.avatar_image},
+  where id = ${id};
+`;
+  res.json(updatedUser);
+  // const updatedDB = res.json(
+  //   user.map((user) => ({
+  //     ...user,
+  //     firstName: user.first_name,
+  //     lastName: user.last_name,
+  //     profileImg: user.avatar_image,
+  //   }))
+  // );
+  // console.log(seedingContents);
 
-  // finding user
-  const user = db.users.find((user) => user.id === id);
-  // when user doesnt exist: 404
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
+  // // when user doesnt exist: 404
+  // if (!user) {
+  //   return res.status(404).json({ message: "User not found" });
+  // }
 
-  const updatedDb = {
-    ...db,
-    users: db.users.map((user) => {
-      if (user.id !== id) return user;
-      return {
-        ...user,
-        ...updatedContents,
-      };
-    }),
-  };
-  const updatedUser = updatedDb.users.find((user) => {
-    user.id === id;
-  });
-  fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
-  res.status(204).json({ user: updatedUser });
+  // const updatedDb = {
+  //   ...db,
+  //   users: db.users.map((user) => {
+  //     if (user.id !== id) return user;
+  //     return {
+  //       ...user,
+  //       ...updatedContents,
+  //     };
+  //   }),
+  // };
+  // const updatedUser = updatedDb.users.find((user) => {
+  //   user.id === id;
+  // });
+  // fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
+  // res.status(204).json({ user: updatedUser });
 });
+
+// usersRouter.patch("/", async (_, res) => {
+//   const users = await sql<UserFromDB[]>`SELECT * FROM users;`;
+//   ...db,
+//   users: db.users.map((user) => {
+//     if (user.id !== id) return user;
+//     return {
+//       ...user,
+//       ...updatedContents,
+//     };
+//   }),
+// });
