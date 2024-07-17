@@ -1,15 +1,6 @@
 import { Router } from "express";
 import fs from "fs";
-
-type User = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  profileImg: string;
-  bookmarks: string;
-};
+import { User } from "../lib/types";
 
 type DB = {
   users: User[];

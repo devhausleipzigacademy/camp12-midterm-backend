@@ -7,9 +7,7 @@
       "lastName": "Doe",
       "password": "test123",
       "profileImg": "",
-      "bookmarks": [
-        "123123"
-      ]
+      "bookmarks": ["123123"]
     },
     {
       "id": "40a84c45-efb9-439d-88f2-96f5b2f73b3e",
@@ -18,11 +16,9 @@
       "email": "swag@swag.swag",
       "password": "ChangeMe123!",
       "profileImg": "",
-      "bookmarks": [
-        "94997",
-        "653326"
-      ]
+      "bookmarks": ["94997", "653326"]
     },
+
     {
       "id": "d3f68929-77f0-4da7-847e-18b09e35a8dc",
       "firstName": "unknown",
@@ -30,10 +26,7 @@
       "email": "no@mail",
       "password": "ChangeMe123!",
       "profileImg": "",
-      "bookmarks": [
-        "94997",
-        "653346"
-      ]
+      "bookmarks": ["94997", "653346"]
     }
   ],
   "screening": [
@@ -41,22 +34,13 @@
       "id": "d0344dec-0018-494f-855b-8e8f61050837",
       "date": "16/07/2024",
       "time": "17:00",
-      "bookedSeats": [
-        "A1",
-        "A2",
-        "F3"
-      ]
+      "bookedSeats": ["A1", "A2", "F3"]
     },
     {
       "id": "458cc6ed-dfa3-4c62-8d08-4249a7720936",
       "date": "16/07/2024",
       "time": "20:00",
-      "bookedSeats": [
-        "A5",
-        "A6",
-        "C5",
-        "C6"
-      ]
+      "bookedSeats": ["A5", "A6", "C5", "C6"]
     }
   ]
 }
