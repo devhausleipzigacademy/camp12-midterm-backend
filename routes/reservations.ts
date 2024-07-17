@@ -1,63 +1,59 @@
 import { Router } from "express";
-import fs from "fs";
-
-type Screening = {
-  id: string;
-  date: string;
-  time: string;
-  bookedSeats: string[];
-};
-
-type DB = {
-  screening: Screening[];
-};
-
-function getDB() {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  return JSON.parse(dbFile) as DB;
-}
-
-function saveDB(db: DB) {
-  fs.writeFileSync("./db.json", JSON.stringify(db, null, 2));
-}
+import { sql } from "../lib/db.js";
 
 export const reservationsRouter = Router();
 
-reservationsRouter.post("/select-seats-reservation", (req, res) => {
+reservationsRouter.post("/select-seats-reservation", async (req, res) => {
   const { screeningId, seats } = req.body;
 
   if (!screeningId || !seats) {
     return res.status(400).json({ message: "Missing screeningId or seats" });
   }
 
-  const db = getDB();
-  const screening = db.screening.find((s) => s.id === screeningId);
+  try {
+    // Get the current booked seats
+    const result = await sql`
+      SELECT booked_seats 
+      FROM screenings 
+      WHERE id = ${screeningId}
+    `;
 
-  if (!screening) {
-    return res.status(404).json({ message: "Screening not found" });
-  }
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
 
-  // Check for already booked seats
-  const alreadyBookedSeats = seats.filter((seat: string) =>
-    screening.bookedSeats.includes(seat)
-  );
+    const bookedSeatsString = result[0].booked_seats;
+    const bookedSeatsArray = bookedSeatsString
+      ? bookedSeatsString.split(",")
+      : [];
 
-  if (alreadyBookedSeats.length > 0) {
-    return res
-      .status(409)
-      .json({ message: "Some seats are already booked", alreadyBookedSeats });
-  }
+    // Check for already booked seats
+    const alreadyBookedSeats = seats.filter((seat: string) =>
+      bookedSeatsArray.includes(seat)
+    );
 
-  // Add new seats to the bookedSeats array
-  screening.bookedSeats.push(...seats);
+    if (alreadyBookedSeats.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "Some seats are already booked", alreadyBookedSeats });
+    }
 
-  // Save the updated database
-  saveDB(db);
+    // Merge the booked seats with the new seats
+    const updatedBookedSeats = [...bookedSeatsArray, ...seats].join(",");
 
-  res
-    .status(201)
-    .json({
+    // Update the booked seats in the database
+    await sql`
+      UPDATE screenings 
+      SET booked_seats = ${updatedBookedSeats}
+      WHERE id = ${screeningId}
+    `;
+
+    res.status(201).json({
       message: "Seats reserved successfully",
-      bookedSeats: screening.bookedSeats,
+      bookedSeats: updatedBookedSeats,
     });
+  } catch (error) {
+    console.error("Error reserving seats:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
