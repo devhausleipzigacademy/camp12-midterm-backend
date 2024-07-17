@@ -1,5 +1,6 @@
 import { Router } from "express";
 import fs from "fs";
+import { sql } from "../lib/db"
 
 type User = {
   id: string;
@@ -17,17 +18,23 @@ function getDB(): DB {
 
 export const bookmarkRouter = Router();
 
-// Send User with bookmarks back
-bookmarkRouter.get("/:uuid", (req, res) => {
-  const db = getDB();
-  const uuid = req.params.uuid;
-  const user = db.users.find(u => u.id === uuid);
-  
-  //Return 404 if no user found
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+bookmarkRouter.get("/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const bookmarks = await sql`
+      SELECT *
+      FROM users 
+      LEFT JOIN bookmarks
+      ON users.id = bookmarks.user_id
+      WHERE user_id = ${userId}
+    `;
+    // remove .movie_id to see joined table, else you will see only the (string)array of the movie_ids
+    res.json(bookmarks.map(bookmark => bookmark.movie_id));
   }
-  res.json(user.bookmarks);
+  catch (error) {
+    console.error("Error fetching bookmarks:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 bookmarkRouter.post("/:uuid/:movieId", (req, res) => {

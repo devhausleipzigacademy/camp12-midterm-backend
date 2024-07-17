@@ -109,6 +109,8 @@ app.get("/setup", async (_, res) => {
   res.json({ message: "🌱 Successfully seeded" });
 });
 
+app.get("/bookmarks", async (_, res) => {})
+
 // Run server
 app.listen(3000, () => {
   console.log("Server started at port 3000");
