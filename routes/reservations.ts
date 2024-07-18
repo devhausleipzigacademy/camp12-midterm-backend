@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { sql } from "../lib/db.js";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 export const reservationsRouter = Router();
 
 reservationsRouter.post("/select-seats-reservation", async (req, res) => {
@@ -12,19 +13,16 @@ reservationsRouter.post("/select-seats-reservation", async (req, res) => {
 
   try {
     // Get the current booked seats
-    const result = await sql`
-      SELECT booked_seats 
-      FROM screenings 
-      WHERE id = ${screeningId}
-    `;
+    const screening = await prisma.screening.findUnique({
+      where: { id: screeningId },
+    });
 
-    if (result.length === 0) {
+    if (!screening) {
       return res.status(404).json({ message: "Screening not found" });
     }
 
-    const bookedSeatsString = result[0].booked_seats;
-    const bookedSeatsArray = bookedSeatsString
-      ? bookedSeatsString.split(",")
+    const bookedSeatsArray = screening.bookedSeats
+      ? screening.bookedSeats.split(",")
       : [];
 
     // Check for already booked seats
@@ -42,16 +40,17 @@ reservationsRouter.post("/select-seats-reservation", async (req, res) => {
     const updatedBookedSeats = [...bookedSeatsArray, ...seats].join(",");
 
     // Update the booked seats in the database
-    await sql`
-      UPDATE screenings 
-      SET booked_seats = ${updatedBookedSeats}
-      WHERE id = ${screeningId}
-    `;
-
-    res.status(201).json({
-      message: "Seats reserved successfully",
-      bookedSeats: updatedBookedSeats,
+    await prisma.screening.update({
+      where: { id: screeningId },
+      data: { bookedSeats: updatedBookedSeats },
     });
+
+    res
+      .status(201)
+      .json({
+        message: "Seats reserved successfully",
+        bookedSeats: updatedBookedSeats,
+      });
   } catch (error) {
     console.error("Error reserving seats:", error);
     res.status(500).json({ message: "Internal server error" });
