@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import postgres from "postgres";
 
 export const sql = postgres({
@@ -6,3 +7,5 @@ export const sql = postgres({
   user: "user",
   password: "password",
 });
+
+export const prisma = new PrismaClient();
