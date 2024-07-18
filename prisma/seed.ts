@@ -7,19 +7,19 @@ async function main() {
 
   const users: Prisma.UserCreateInput[] = [
     {
-      email: "dan@devhausleipzig,.de",
+      email: "dan@devhausleipzig.de",
       firstName: "Dan",
       lastName: "McAtee",
       password: "test123",
     },
     {
-      email: "taylor@devhausleipzig,.de",
+      email: "taylor@devhausleipzig.de",
       firstName: "Taylor",
       lastName: "Harvey",
       password: "test123",
     },
     {
-      email: "franz@devhausleipzig,.de",
+      email: "franz@devhausleipzig.de",
       firstName: "Franz",
       lastName: "Wollang",
       password: "test123",
