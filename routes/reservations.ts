@@ -15,15 +15,16 @@ reservationsRouter.post("/select-seats-reservation", async (req, res) => {
     // Get the current booked seats
     const screening = await prisma.screening.findUnique({
       where: { id: screeningId },
+      include: { seats: { select: { seatId: true } } },
     });
 
     if (!screening) {
       return res.status(404).json({ message: "Screening not found" });
     }
 
-    const bookedSeatsArray = screening.bookedSeats
-      ? screening.bookedSeats.split(",")
-      : [];
+    const bookedSeatsArray = screening.seats.map(
+      (screeningSeat) => screeningSeat.seatId
+    );
 
     // Check for already booked seats
     const alreadyBookedSeats = seats.filter((seat: string) =>
@@ -36,21 +37,19 @@ reservationsRouter.post("/select-seats-reservation", async (req, res) => {
         .json({ message: "Some seats are already booked", alreadyBookedSeats });
     }
 
-    // Merge the booked seats with the new seats
-    const updatedBookedSeats = [...bookedSeatsArray, ...seats].join(",");
-
-    // Update the booked seats in the database
+    // Add the new seats to the screening
     await prisma.screening.update({
       where: { id: screeningId },
-      data: { bookedSeats: updatedBookedSeats },
+      data: {
+        seats: {
+          create: seats.map((seat: string) => ({
+            seat: { connect: { id: seat } },
+          })),
+        },
+      },
     });
 
-    res
-      .status(201)
-      .json({
-        message: "Seats reserved successfully",
-        bookedSeats: updatedBookedSeats,
-      });
+    res.status(201).json({ message: "Seats reserved successfully" });
   } catch (error) {
     console.error("Error reserving seats:", error);
     res.status(500).json({ message: "Internal server error" });

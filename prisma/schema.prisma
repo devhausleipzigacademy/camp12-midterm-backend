@@ -32,8 +32,23 @@ model Game {
 }
 
 model Screening {
-  id          String   @id @default(uuid())
-  date        DateTime
-  time        DateTime
-  bookedSeats String
+  id       String   @id @default(uuid())
+  date     DateTime
+  time     DateTime
+  seats    ScreeningSeat[]
+}
+
+model Seat {
+  id        String           @id @unique
+  screenings ScreeningSeat[]
+}
+
+model ScreeningSeat {
+  screeningId String
+  seatId      String
+
+  @@id([screeningId, seatId])
+
+  screening Screening @relation(fields: [screeningId], references: [id])
+  seat      Seat      @relation(fields: [seatId], references: [id])
 }
