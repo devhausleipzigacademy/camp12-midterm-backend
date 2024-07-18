@@ -1,81 +1,73 @@
 import { Router } from "express";
-import fs from "fs";
-import { sql } from "../lib/db";
-import { User, UserFromDB } from "../lib/types";
+import { prisma } from "../lib/db";
+import { ZodError, z } from "zod";
 
-// function getDB() {
-//   const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-//   return JSON.parse(dbFile) as DB;
-// }
+const createUserSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  firstName: z.string().min(2, "First name is required at least 2 character"),
+  lastName: z.string().min(2, "Last name is required at least 2 character"),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(6, "Password need to be at least 6 characters long"),
+});
+
+const updateUserSchema = createUserSchema.partial();
 
 export const usersRouter = Router();
 
+// Get all users
 usersRouter.get("/", async (_, res) => {
-  const users = await sql<UserFromDB[]>`SELECT * FROM users;`;
-  res.json(
-    users.map((user) => ({
-      ...user,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      profileImg: user.avatar_image,
-    }))
-  );
+  const users = await prisma.user.findMany();
+  res.json(users);
 });
 
-// usersRouter.post("/", (req, res) => {
-//   const newUser = req.body;
-//   const db = getDB();
-//   const updatedDb = {
-//     ...db,
-//     users: [...db.users, newUser],
-//   };
-//   fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
+usersRouter.post("/", async (req, res) => {
+  try {
+    const parsedBody = createUserSchema.parse(req.body);
+    const newUser = await prisma.user.create({
+      data: parsedBody,
+      select: { id: true },
+    });
+    return res.json(newUser);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json(error.issues);
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 
-//   res.status(201).json({ username: newUser.username });
-// });
+usersRouter.get("/:email", async (req, res) => {
+  const { email: emailFromParams } = req.params;
+  const user = await prisma.user.findUnique({
+    where: { email: emailFromParams },
+  });
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json(user);
+});
 
-// usersRouter.get("/:username", (req, res) => {
-//   const { username } = req.params;
-//   const db = getDB();
-//   const user = db.users.find((user) => user.username === username);
+usersRouter.delete("/:email", async (req, res) => {
+  const { email: emailFromParams } = req.params;
+  const deletedUser = await prisma.user.delete({
+    where: { email: emailFromParams },
+    select: { id: true },
+  });
+  res.status(204).json(deletedUser);
+});
 
-//   if (!user) {
-//     res.status(404).json({ message: "User not found" });
-//   }
-//   res.json(user);
-// });
-
-// usersRouter.patch("/:username", (req, res) => {
-//   const { username } = req.params;
-//   const updatedContents = req.body;
-
-//   const db = getDB();
-//   const updatedDb = {
-//     ...db,
-//     users: db.users.map((user) => {
-//       if (user.username !== username) return user;
-//       return {
-//         ...user,
-//         ...updatedContents,
-//       };
-//     }),
-//   };
-
-//   const updatedUser = updatedDb.users.find(
-//     (user) => user.username === username
-//   );
-//   fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
-//   res.status(200).json({ user: updatedUser });
-// });
-
-// usersRouter.delete("/:username", (req, res) => {
-//   const { username } = req.params;
-//   const db = getDB();
-//   const updatedDb = {
-//     ...db,
-//     users: db.users.filter((user) => user.username !== username),
-//   };
-//   fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
-
-//   res.status(202).json({ username });
-// });
+usersRouter.patch("/:email", async (req, res) => {
+  const { email: emailFromParams } = req.params;
+  try {
+    const parsedBody = updateUserSchema.parse(req.body);
+    const updatedUser = await prisma.user.update({
+      where: { email: emailFromParams },
+      data: parsedBody,
+    });
+    return res.json(updatedUser);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json(error.issues);
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
