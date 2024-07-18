@@ -1,9 +1,10 @@
 import { Router } from "express";
 import fs from "fs";
+import { sql } from "../lib/db";
 
 type User = {
   id: string;
-  bookmarks: string[]
+  bookmarks: string[];
 };
 
 type DB = {
@@ -18,41 +19,47 @@ function getDB(): DB {
 export const bookmarkRouter = Router();
 
 // Send User with bookmarks back
-bookmarkRouter.get("/:uuid", (req, res) => {
-  const db = getDB();
-  const uuid = req.params.uuid;
-  const user = db.users.find(u => u.id === uuid);
-  
-  //Return 404 if no user found
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+bookmarkRouter.get("/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const bookmarks =
+      await sql`SELECT * FROM users JOIN bookmarks ON users.id = bookmarks.user_id WHERE user_id = ${userId}`;
+    // remove .movie_id to see joined table, else you will see only the (string)array of the movie_ids
+    res.json(bookmarks.map((bookmark) => bookmark.movie_id));
+  } catch (error) {
+    console.error("Error fetching bookmarks:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-  res.json(user.bookmarks);
 });
 
-bookmarkRouter.post("/:uuid/:movieId", (req, res) => {
-  const db = getDB();
-  const uuid = req.params.uuid;
+bookmarkRouter.post("/:movieId/:userId", async (req, res) => {
   const movieId = req.params.movieId;
-  const userIndex = db.users.findIndex(u => u.id === uuid);
+  const userId = req.params.userId;
 
-  //Return 404 if no user found
-  if (userIndex === -1) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    // Check if the user exists
+    const user = await sql`SELECT * FROM users WHERE id = ${userId}`;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the movie ID is already in the user's bookmarks
+    const bookmark =
+      await sql`SELECT * FROM bookmarks WHERE user_id = ${userId} AND movie_id = ${movieId}`;
+    if (bookmark) {
+      // If it exists, remove it
+      await sql`DELETE FROM bookmarks WHERE user_id = ${userId} AND movie_id = ${movieId}`;
+    } else {
+      // If it doesn't exist, add it
+      await sql`INSERT INTO bookmarks (user_id, movie_id) VALUES (${userId}, ${movieId})`;
+    }
+
+    // Return the updated bookmarks
+    const bookmarks =
+      await sql`SELECT movie_id FROM bookmarks WHERE user_id = ${userId}`;
+    res.json(bookmarks.map((bookmark) => bookmark.movie_id));
+  } catch (error) {
+    console.error("Error updating bookmarks:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  const user = db.users[userIndex];
-
-  // Has our user bookmarks array have the movieID?
-  if (user.bookmarks.includes(movieId)) {
-    // if so, remove it
-    user.bookmarks = user.bookmarks.filter(id => id !== movieId);
-  } else {
-    // else add it
-    user.bookmarks.push(movieId);
-  }
-
-  // Save on DB
-  fs.writeFileSync("./db.json", JSON.stringify(db, null, 2));
-  res.status(200).json({ bookmarks: user.bookmarks });
 });
