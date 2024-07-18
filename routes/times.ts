@@ -1,13 +1,9 @@
 import { Router } from "express";
 import fs from "fs";
 import { sql } from "../lib/db";
+import { addDays, eachDayOfInterval, format } from "date-fns";
 
 const SeatsTotal = 44;
-
-// function getDB() {
-//   const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-//   return JSON.parse(dbFile);
-// }
 
 type ScreeningFromDB = {
   id: number;
@@ -19,26 +15,35 @@ type ScreeningFromDB = {
 
 export const timesRouter = Router();
 
-timesRouter.get("/:date", async (req, res) => {
-  // const db = getDB();
-  // console.log(db);
+timesRouter.get("/", async (req, res) => {
+  const today = new Date();
 
-  // const availableTimes = db.screening
-  //   .filter((screening: Screening) => screening.bookedSeats.length < SeatsTotal)
-  //   .map((screening: Screening) => screening.time);
+  const unformattedDatesNextWeek = eachDayOfInterval({
+    start: new Date(today),
+    end: new Date(addDays(today, 6)),
+  });
 
-  const date = req.params.date;
+  const datesNextWeek = unformattedDatesNextWeek.map((date) =>
+    format(date, "dd-MM-yyyy")
+  );
 
   const screenings = await sql<
     ScreeningFromDB[]
-  >`SELECT * FROM screenings WHERE date = ${date}`;
+  >`SELECT * FROM screenings WHERE date IN ${sql(datesNextWeek)}`;
 
-  const availableTimes = screenings
-    .filter(
-      (screening: ScreeningFromDB) =>
-        screening.booked_seats.split(",").length < SeatsTotal
-    )
-    .map((screening: ScreeningFromDB) => screening.time);
+  const availableTimes = screenings.reduce<{ [key: string]: string[] }>(
+    (acc, screening) => {
+      if (!acc[screening.date]) {
+        acc[screening.date] = [];
+      }
 
-  res.json(screenings);
+      if (screening.booked_seats.split(",").length < SeatsTotal) {
+        acc[screening.date].push(screening.time);
+      }
+
+      return acc;
+    },
+    {}
+  );
+  res.json(availableTimes);
 });
