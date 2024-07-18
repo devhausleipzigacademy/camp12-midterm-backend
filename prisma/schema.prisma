@@ -20,4 +20,13 @@ model User {
   lastName String
   password String
   avatarImage String?
+
+  games Game[]
+}
+
+model Game {
+  id String @id @default(uuid())
+  name String
+
+  owners User[]
 }

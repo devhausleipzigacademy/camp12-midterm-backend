@@ -17,8 +17,20 @@ export const usersRouter = Router();
 
 // Get all users
 usersRouter.get("/", async (_, res) => {
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({
+    include: {
+      games: true,
+    },
+  });
   res.json(users);
+});
+usersRouter.get("/games", async (_, res) => {
+  const games = await prisma.game.findMany({
+    include: {
+      owners: true,
+    },
+  });
+  res.json(games);
 });
 
 usersRouter.post("/", async (req, res) => {
