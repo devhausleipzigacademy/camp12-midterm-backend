@@ -8,6 +8,9 @@ import { loginRouter } from "./routes/login";
 import { reservationsRouter } from "./routes/reservations";
 import { timesRouter } from "./routes/times";
 import { sql } from "./lib/db";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Initialize application
 const app = express();
