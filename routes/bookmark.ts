@@ -54,10 +54,10 @@ bookmarkRouter.post("/:movieId/:userId", async (req, res) => {
       await sql`INSERT INTO bookmarks (user_id, movie_id) VALUES (${userId}, ${movieId})`;
     }
 
-    // Return the updated bookmarks
-    const bookmarks =
-      await sql`SELECT movie_id FROM bookmarks WHERE user_id = ${userId}`;
-    res.json(bookmarks.map((bookmark) => bookmark.movie_id));
+    // Get the updated user with bookmarks
+    const updatedUser =
+      await sql`SELECT u.*, b.movie_id AS bookmarks FROM users u LEFT JOIN bookmarks b ON u.id = b.user_id WHERE u.id = ${userId}`;
+    res.json(updatedUser);
   } catch (error) {
     console.error("Error updating bookmarks:", error);
     res.status(500).json({ message: "Internal server error" });
