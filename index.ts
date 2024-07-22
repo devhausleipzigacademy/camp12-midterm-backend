@@ -9,6 +9,7 @@ import { reservationsRouter } from "./routes/reservations";
 import { timesRouter } from "./routes/times";
 import { sql } from "./lib/db";
 import dotenv from "dotenv";
+import { seatsRouter } from "./routes/select-seats";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use("/profile", customisationRouter);
 app.use("/registration", registrationRouter);
 app.use("/login", loginRouter);
 app.use("/reservations", reservationsRouter);
+app.use("/reserved-seats", seatsRouter);
 
 app.get("/setup", async (_, res) => {
   console.log("Clean database");
