@@ -14,19 +14,27 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String @unique
-  firstName String
-  lastName String
-  password String
+  id          String  @id @default(uuid())
+  email       String  @unique
+  firstName   String
+  lastName    String
+  password    String
   avatarImage String?
 
   games Game[]
 }
 
 model Game {
-  id String @id @default(uuid())
+  id   String @id @default(uuid())
   name String
 
   owners User[]
+}
+
+model Screening {
+  id           String @id @default(uuid())
+  date         String
+  time         String
+  booked_seats String
+  movie_id     String
 }
