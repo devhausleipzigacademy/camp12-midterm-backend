@@ -11,13 +11,21 @@ export const bookmarkRouter = Router();
 // Send User with bookmarks back
 bookmarkRouter.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
-  // get existing user bookmarks
   try {
     const bookmarks = await prisma.bookmark.findMany({
-      where: { userId },
-      select: { movieId: true },
+      where: {
+        userId: userId,
+      },
+      include: {
+        user: true,
+      },
     });
-    res.json(bookmarks.map((bookmark) => bookmark.movieId));
+    // get whole bookmark table with user info
+    // res.json(bookmarks);
+
+    // Only movieIds
+    const movieIds = bookmarks.map((bookmark) => bookmark.movieId);
+    res.json(movieIds);
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -39,7 +47,7 @@ bookmarkRouter.post("/:movieId/:userId", async (req, res) => {
 
     // Check if the movie ID is already in the user's bookmarks
     const bookmark = await prisma.bookmark.findUnique({
-      where: { userId, movieId },
+      where: { movieId_userId: { movieId, userId } },
     });
     if (bookmark) {
       // If it exists, remove it
