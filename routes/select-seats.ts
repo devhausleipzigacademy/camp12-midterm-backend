@@ -1,33 +1,25 @@
 import { Router } from "express";
-import fs from "fs";
-
-type Screening = {
-  id: string;
-  date: string;
-  time: string;
-  bookedSeats: string[];
-};
-
-type DB = {
-  screening: Screening[];
-};
-
-function getDB() {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  // creating object out of string with JSON.parse
-  return JSON.parse(dbFile) as DB;
-}
+import { prisma } from "../lib/db";
 
 export const seatsRouter = Router();
 
-seatsRouter.get("/:screeningId", (req, res) => {
+seatsRouter.get("/:screeningId", async (req, res) => {
   const { screeningId } = req.params;
-  const db = getDB();
-  const screening = db.screening.find((s) => s.id === screeningId);
+  try {
+    const screening = await prisma.screening.findUnique({
+      where: {
+        id: screeningId,
+      },
+      include: { seats: true },
+    });
 
-  if (!screening) {
-    return res.status(404).json({ message: "Screening not found" });
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+    const seats = screening.seats;
+    res.json({ screening, seats });
+  } catch (error) {
+    console.error("Error fetching screening and seats:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  res.json({ blockedSeats: screening.bookedSeats });
 });
