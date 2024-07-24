@@ -14,17 +14,15 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String @unique
-  firstName String
-  lastName String
-  password String
+  id          String     @id @default(uuid())
+  email       String     @unique
+  firstName   String
+  lastName    String
+  password    String
   avatarImage String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  games Game[]
+  bookmarks   Bookmark[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Game {
@@ -32,26 +30,4 @@ model Game {
   name String
 
   owners User[]
-}
-
-model Screening {
-  id       String   @id @default(uuid())
-  date     DateTime
-  time     DateTime
-  seats    ScreeningSeat[]
-}
-
-model Seat {
-  id        String           @id @unique
-  screenings ScreeningSeat[]
-}
-
-model ScreeningSeat {
-  screeningId String
-  seatId      String
-
-  @@id([screeningId, seatId])
-
-  screening Screening @relation(fields: [screeningId], references: [id])
-  seat      Seat      @relation(fields: [seatId], references: [id])
 }

@@ -1,54 +1,42 @@
 import { Router } from "express";
-import fs from "fs";
+import { prisma } from "../lib/db";
+import { z, ZodError } from "zod";
 
-type User = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  profileImg: string;
-  bookmarks: string[];
-};
+const createUserSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  firstName: z.string().min(2, "First name is required at least 2 character"),
+  lastName: z.string().min(2, "Last name is required at least 2 character"),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(6, "Password need to be at least 6 characters long"),
+});
+// using the updateUserSchema for Validation
+const updateUserSchema = createUserSchema.partial();
 
-type DB = {
-  users: User[];
-};
+export const customizationRouter = Router();
 
-export const customisationRouter = Router();
-
-function getDB() {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  return JSON.parse(dbFile) as DB;
-}
-
-customisationRouter.patch("/:id", (req, res) => {
-  const { id } = req.params;
-  console.log(id);
-
-  const updatedContents = req.body;
-  const db = getDB();
-
-  // finding user
-  const user = db.users.find((user) => user.id === id);
-  // when user doesnt exist: 404
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+customizationRouter.patch("/:id", async (req, res) => {
+  const { id: idFromParams } = req.params;
+  try {
+    // Try and find user
+    const existingUser = await prisma.user.findUnique({
+      where: { id: idFromParams },
+    });
+    // If user doesn't exist, return 404
+    if (!existingUser) {
+      return res.status(404).json({ message: "User doesn't exist" });
+    }
+    // If user exists, proceed with update
+    const parsedBody = updateUserSchema.parse(req.body);
+    const updatedUser = await prisma.user.update({
+      where: { id: idFromParams },
+      data: parsedBody,
+    });
+    return res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json(error.issues);
+    }
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  const updatedDb = {
-    ...db,
-    users: db.users.map((user) => {
-      if (user.id !== id) return user;
-      return {
-        ...user,
-        ...updatedContents,
-      };
-    }),
-  };
-  const updatedUser = updatedDb.users.find((user) => {
-    user.id === id;
-  });
-  fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
-  res.status(204).json({ user: updatedUser });
 });
