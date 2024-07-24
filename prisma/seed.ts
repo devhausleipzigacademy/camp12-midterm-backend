@@ -36,6 +36,7 @@ async function main() {
   for (const user of users) {
     const createdUser = await prisma.user.create({ data: user });
     createdUsers.push(createdUser);
+    console.log(`USER ID: ${createdUser.id}`)
   }
 
   const bookmarks: Prisma.BookmarkCreateInput[] = [
@@ -46,10 +47,6 @@ async function main() {
     { 
       movieId: "653346", 
       user: { connect: { id: createdUsers[2].id } }
-    },
-    { 
-      movieId: "653346", 
-      user: { connect: { id: createdUsers[0].id } }
     },
     { 
       movieId: "693134", 

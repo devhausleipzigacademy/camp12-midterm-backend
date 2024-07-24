@@ -30,4 +30,5 @@ model Bookmark {
   movieId String
   userId  String
   user    User   @relation(fields: [userId], references: [id])
+  @@unique([ movieId, userId ])
 }
