@@ -4,6 +4,7 @@ import { User } from "../lib/types";
 import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/db";
+import jwt from "jsonwebtoken";
 
 type DB = {
   users: User[];
@@ -41,7 +42,8 @@ loginRouter.post("/", async (req, res) => {
     if (!passwordMatches) {
       res.status(400).json({ error: "Password is incorrect" });
     }
-    res.json({ message: "Password matches" });
+    const token = jwt.sign({ id: exisitingUser.id }, process.env.JWT_SECRET!);
+    res.json({ token });
   } catch (err) {
     if (err instanceof ZodError) {
       return res.status(400).json({ error: err.issues });
