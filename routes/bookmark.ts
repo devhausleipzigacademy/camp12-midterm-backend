@@ -32,9 +32,9 @@ bookmarkRouter.get("/:userId", async (req, res) => {
   }
 });
 
-bookmarkRouter.post("/:movieId/:userId", async (req, res) => {
-  const movieId = req.params.movieId;
+bookmarkRouter.post("/:userId/:movieId", async (req, res) => {
   const userId = req.params.userId;
+  const movieId = req.params.movieId;
 
   try {
     // Check if the user exists
@@ -57,7 +57,7 @@ bookmarkRouter.post("/:movieId/:userId", async (req, res) => {
     } else {
       // If it doesn't exist, add it
       await prisma.bookmark.create({
-        data: { userId, movieId },
+        data: { movieId, userId },
       });
     }
 
