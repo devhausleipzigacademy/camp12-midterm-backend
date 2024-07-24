@@ -1,6 +1,9 @@
 import { Router } from "express";
-import fs from "fs";
-import { v4 as uuidv4 } from 'uuid';
+import fs, { stat } from "fs";
+import { v4 as uuidv4 } from "uuid";
+import { z, ZodError } from "zod";
+import { prisma } from "../lib/db";
+import bcrypt from "bcrypt";
 
 //Types
 type User = {
@@ -10,7 +13,7 @@ type User = {
   email: string;
   password: string;
   profileImg: string;
-  bookmarks: string[]
+  bookmarks: string[];
 };
 
 type DB = {
@@ -23,47 +26,47 @@ function getDB() {
   return JSON.parse(dbFile) as DB;
 }
 
-// Default values for our user
-const defaultUser: User = {
-    uuid: "",
-    firstName: "unknown",
-    lastName: "unknown",
-    email: "no@mail",
-    password: "ChangeMe123!" ,
-    profileImg: "",
-    bookmarks: []
-};
-
 // Router
-export const registrationRouter  = Router();
+export const registrationRouter = Router();
 
 // Get DataBase
-registrationRouter .get("/", (_, res) => {
+registrationRouter.get("/", (_, res) => {
   const db = getDB();
   res.json(db.users);
 });
 
+const RegisterUserSchema = z.object({
+  email: z.string().email(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  password: z.string().min(6, "Password has to be at least 6 characters long"),
+});
+
 // Add to Database
-registrationRouter .post("/", (req, res) => {
-    // Generate uuid
-    const uuid = uuidv4();
-    const newUser: User = {
-        // Fill in values of the defaultUser
-        ...defaultUser,
-        // Fill in values from the request
-        ...req.body,
-        // fill in generated uuid
-        uuid: uuid
-    };
-    const db = getDB();
-    const updatedDb = {
-    // All entries from our database
-      ...db,
-    // Plus our updated List of Users together with the newly created one
-      users: [...db.users, newUser],
-    };
-    //Write File
-    fs.writeFileSync("./db.json", JSON.stringify(updatedDb, null, 2));
-    // If successful, give Status 200 for completed and the uuid as a log
-    res.status(200).json({ id: newUser.uuid });
-  });
+registrationRouter.post("/", async (req, res) => {
+  const body = req.body;
+  try {
+    const user = RegisterUserSchema.parse(body);
+    const existingUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+    const newUser = await prisma.user.create({
+      data: {
+        ...user,
+        password: hashedPassword,
+      },
+    });
+    return res.json({ user: newUser });
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return res.status(400).json({ error: err.issues });
+    }
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
