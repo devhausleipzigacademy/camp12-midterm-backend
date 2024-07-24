@@ -9,12 +9,14 @@ import { reservationsRouter } from "./routes/reservations";
 import { timesRouter } from "./routes/times";
 import { sql } from "./lib/db";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 // Initialize application
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 // Define an endpoint

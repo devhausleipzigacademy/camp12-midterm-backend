@@ -33,14 +33,14 @@ loginRouter.post("/", async (req, res) => {
       where: { email },
     });
     if (!exisitingUser) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(400).json({ error: "Email or password incorrect" });
     }
     const passwordMatches = await bcrypt.compare(
       password,
       exisitingUser.password
     );
     if (!passwordMatches) {
-      res.status(400).json({ error: "Password is incorrect" });
+      res.status(400).json({ error: "Email or password incorrect" });
     }
     const token = jwt.sign({ id: exisitingUser.id }, process.env.JWT_SECRET!);
     res.json({ token });
