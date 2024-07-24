@@ -15,13 +15,16 @@ bookmarkRouter.get("/:userId", async (req, res) => {
         user: true
       }
     });
+
+    if (bookmarks.length == 0 || bookmarks === null){
+      return res.status(404).json({message: "User not found"})
+    } 
+
     // get whole bookmark table with user info
     // res.json(bookmarks);
-
     // Only movieIds
     const movieIds = bookmarks.map(bookmark => bookmark.movieId);
     res.json(movieIds);
-
   }
   catch (error) {
     console.error("Error fetching bookmarks:", error);
