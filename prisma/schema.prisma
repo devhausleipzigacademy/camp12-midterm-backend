@@ -32,9 +32,9 @@ model Game {
 }
 
 model Screening {
-  id           String @id @default(uuid())
-  date         String
-  time         String
-  booked_seats String
-  movie_id     String
+  id          String @id @default(uuid())
+  date        String
+  time        String
+  bookedSeats String
+  movieId     String
 }
