@@ -1,44 +1,26 @@
-import { prisma } from "../lib/db";
-import { User, Game, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.user.deleteMany();
-  await prisma.game.deleteMany();
+  const seatIds = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"];
 
-  const users: Prisma.UserCreateInput[] = [
-    {
-      email: "dan@devhausleipzig.de",
-      firstName: "Dan",
-      lastName: "McAtee",
-      password: "test123",
-    },
-    {
-      email: "taylor@devhausleipzig.de",
-      firstName: "Taylor",
-      lastName: "Harvey",
-      password: "test123",
-    },
-    {
-      email: "franz@devhausleipzig.de",
-      firstName: "Franz",
-      lastName: "Wollang",
-      password: "test123",
-    },
-  ];
+  await Promise.all(
+    seatIds.map((id) =>
+      prisma.seat.create({
+        data: { id },
+      })
+    )
+  );
 
-  const games: Prisma.GameCreateInput[] = [
-    { name: "MTG Arena" },
-    { name: "Pokemon GO" },
-    { name: "Minecraft" },
-    { name: "Elder Scrolls Online" },
-  ];
-
-  for (const user of users) {
-    await prisma.user.create({ data: user });
-  }
-  for (const game of games) {
-    await prisma.game.create({ data: game });
-  }
+  console.log("Seeding completed");
 }
 
-main().then(() => process.exit(0));
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
