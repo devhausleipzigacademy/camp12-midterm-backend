@@ -7,6 +7,17 @@ export const bookmarkRouter = Router();
 bookmarkRouter.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
   try {
+    // check if there is user found
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // if thats the case, then look for the bookmarks
     const bookmarks = await prisma.bookmark.findMany({
       where: {
         userId: userId
@@ -15,9 +26,6 @@ bookmarkRouter.get("/:userId", async (req, res) => {
         user: true
       }
     });
-    if (bookmarks.length == 0 || bookmarks === null){
-      return res.status(404).json({message: "User not found"})
-    } 
     // get whole bookmark table with user info
     // res.json(bookmarks);
     // Only movieIds
