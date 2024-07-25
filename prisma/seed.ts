@@ -1,37 +1,62 @@
+import { connect } from "http2";
 import { prisma } from "../lib/db";
-import { User, Game, Prisma } from "@prisma/client";
+import { User, Prisma } from "@prisma/client";
 
 async function main() {
   await prisma.user.deleteMany();
-  await prisma.game.deleteMany();
   await prisma.screening.deleteMany();
+  await prisma.bookmark.deleteMany();
 
   const users: Prisma.UserCreateInput[] = [
     {
-      email: "dan@devhausleipzig,.de",
+      email: "dan@devhausleipzig.de",
       firstName: "Dan",
       lastName: "McAtee",
       password: "test123",
     },
     {
-      email: "taylor@devhausleipzig,.de",
+      email: "taylor@devhausleipzig.de",
       firstName: "Taylor",
       lastName: "Harvey",
       password: "test123",
     },
     {
-      email: "franz@devhausleipzig,.de",
+      email: "franz@devhausleipzig.de",
       firstName: "Franz",
       lastName: "Wollang",
       password: "test123",
     },
+    {
+      email: "nikita@devhausleipzig.de",
+      firstName: "Nikita",
+      lastName: "Nakropin",
+      password: "test123",
+    },
   ];
+  const createdUsers = [];
+  for (const user of users) {
+    const createdUser = await prisma.user.create({ data: user });
+    createdUsers.push(createdUser);
+    console.log(`USER ID: ${createdUser.id}`)
+  }
 
-  const games: Prisma.GameCreateInput[] = [
-    { name: "MTG Arena" },
-    { name: "Pokemon GO" },
-    { name: "Minecraft" },
-    { name: "Elder Scrolls Online" },
+  const bookmarks: Prisma.BookmarkCreateInput[] = [
+    { 
+      movieId: "653346", 
+      user: { connect: { id: createdUsers[0].id } }
+    },
+    { 
+      movieId: "653346", 
+      user: { connect: { id: createdUsers[2].id } }
+    },
+    { 
+      movieId: "693134", 
+      user: { connect: { id: createdUsers[1].id } }
+    },
+    { 
+      movieId: "693134", 
+      user: { connect: { id: createdUsers[0].id } }
+    },
   ];
 
   const screenings: Prisma.ScreeningCreateInput[] = [
@@ -199,12 +224,15 @@ async function main() {
   for (const user of users) {
     await prisma.user.create({ data: user });
   }
-  for (const game of games) {
-    await prisma.game.create({ data: game });
-  }
   for (const screening of screenings) {
     await prisma.screening.create({ data: screening });
   }
+
+  for (const bookmark of bookmarks) {
+    await prisma.bookmark.create({ data: bookmark });
+  }
+
+
 }
 
 main().then(() => process.exit(0));
