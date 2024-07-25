@@ -4,6 +4,7 @@ import { User, Game, Prisma } from "@prisma/client";
 async function main() {
   await prisma.user.deleteMany();
   await prisma.game.deleteMany();
+  await prisma.screening.deleteMany();
 
   const users: Prisma.UserCreateInput[] = [
     {

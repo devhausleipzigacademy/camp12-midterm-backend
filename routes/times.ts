@@ -34,7 +34,7 @@ timesRouter.get("/", async (req, res) => {
           acc[screening.date] = [];
         }
 
-        if (screening.booked_seats.split(",").length < SeatsTotal) {
+        if (screening.bookedSeats.length < SeatsTotal) {
           acc[screening.date].push(screening.time);
         }
 
