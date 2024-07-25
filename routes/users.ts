@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/db";
 import { ZodError, z } from "zod";
+import { log } from "console";
 
 const createUserSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -17,11 +18,10 @@ export const usersRouter = Router();
 
 // Get all users
 usersRouter.get("/", async (_, res) => {
-  const users = await prisma.user.findMany({
-    include: {
-      games: true,
-    },
-  });
+  const users = await prisma.user.findMany();
+  const date = new Date(users[0].createdAt).toLocaleDateString();
+  console.log(date);
+
   res.json(users);
 });
 usersRouter.get("/games", async (_, res) => {

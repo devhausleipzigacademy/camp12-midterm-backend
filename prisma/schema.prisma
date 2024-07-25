@@ -14,21 +14,24 @@ datasource db {
 }
 
 model User {
-  id          String  @id @default(uuid())
-  email       String  @unique
+  id          String     @id @default(uuid())
+  email       String     @unique
   firstName   String
   lastName    String
   password    String
   avatarImage String?
-
-  games Game[]
+  bookmarks   Bookmark[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
-model Game {
-  id   String @id @default(uuid())
-  name String
 
-  owners User[]
+model Bookmark {
+  id      String @id @default(uuid())
+  movieId String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  @@unique([ movieId, userId ])
 }
 
 model Screening {
