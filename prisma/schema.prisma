@@ -97,3 +97,11 @@ enum SeatName {
   F5
   F6
 }
+
+model Screening {
+  id          String   @id @default(uuid())
+  date        String
+  time        String
+  bookedSeats String[]
+  movieId     String
+}

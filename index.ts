@@ -53,6 +53,7 @@ app.use("/login", loginRouter);
 app.use("/reservations", reservationsRouter);
 app.use("/reserved-seats", seatsRouter);
 
+
 app.get("/protected", protectionMiddleware, async (req, res) => {
   const users = await prisma.user.findMany();
   return res.json(users);
