@@ -1,13 +1,15 @@
-import { connect } from "http2";
 import { prisma } from "../lib/db";
-import { User, Prisma } from "@prisma/client";
 
 async function main() {
+  // Clear existing data
   await prisma.user.deleteMany();
   await prisma.screening.deleteMany();
   await prisma.bookmark.deleteMany();
+  await prisma.seat.deleteMany();
+  await prisma.screening.deleteMany();
 
-  const users: Prisma.UserCreateInput[] = [
+  // Seed users
+  const users = [
     {
       email: "dan@devhausleipzig.de",
       firstName: "Dan",
@@ -33,29 +35,34 @@ async function main() {
       password: "test123",
     },
   ];
+
   const createdUsers = [];
   for (const user of users) {
     const createdUser = await prisma.user.create({ data: user });
     createdUsers.push(createdUser);
-    console.log(`USER ID: ${createdUser.id}`)
   }
 
-  const bookmarks: Prisma.BookmarkCreateInput[] = [
-    { 
-      movieId: "653346", 
-      user: { connect: { id: createdUsers[0].id } }
+  // Seed bookmarks
+  const bookmarks = [
+    {
+      movieId: "653346",
+      user: { connect: { id: createdUsers[0].id } },
     },
-    { 
-      movieId: "653346", 
-      user: { connect: { id: createdUsers[2].id } }
+    {
+      movieId: "653346",
+      user: { connect: { id: createdUsers[2].id } },
     },
-    { 
-      movieId: "693134", 
-      user: { connect: { id: createdUsers[1].id } }
+    {
+      movieId: "653346",
+      user: { connect: { id: createdUsers[0].id } },
     },
-    { 
-      movieId: "693134", 
-      user: { connect: { id: createdUsers[0].id } }
+    {
+      movieId: "693134",
+      user: { connect: { id: createdUsers[1].id } },
+    },
+    {
+      movieId: "693134",
+      user: { connect: { id: createdUsers[0].id } },
     },
   ];
 
@@ -232,7 +239,41 @@ async function main() {
     await prisma.bookmark.create({ data: bookmark });
   }
 
+  // Seed seats
+  const seatIds = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"];
+  for (const seatId of seatIds) {
+    await prisma.seat.create({ data: { id: seatId } });
+  }
 
+  // Seed screenings with seats
+  const screenings = [
+    {
+      date: new Date("2024-07-16T17:00:00Z"),
+      time: new Date("2024-07-16T17:00:00Z"),
+      seats: {
+        create: [
+          { seat: { connect: { id: "A1" } } },
+          { seat: { connect: { id: "A2" } } },
+          { seat: { connect: { id: "A3" } } },
+        ],
+      },
+    },
+    {
+      date: new Date("2024-07-16T20:00:00Z"),
+      time: new Date("2024-07-16T20:00:00Z"),
+      seats: {
+        create: [
+          { seat: { connect: { id: "B1" } } },
+          { seat: { connect: { id: "B2" } } },
+          { seat: { connect: { id: "B3" } } },
+        ],
+      },
+    },
+  ];
+
+  for (const screening of screenings) {
+    await prisma.screening.create({ data: screening });
+  }
 }
 
 main().then(() => process.exit(0));

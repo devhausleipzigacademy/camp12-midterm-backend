@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,15 +8,42 @@ datasource db {
 }
 
 model User {
-  id          String     @id @default(uuid())
-  email       String     @unique
+  id          String      @id @default(uuid())
+  email       String      @unique
   firstName   String
   lastName    String
   password    String
   avatarImage String?
+  games       Game[]
   bookmarks   Bookmark[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+}
+
+model Game {
+  id     String @id @default(uuid())
+  name   String
+  owners User[]
+}
+
+model Screening {
+  id       String   @id @default(uuid())
+  date     DateTime
+  time     DateTime
+  seats    ScreeningSeat[]
+}
+
+model Seat {
+  id         String           @id @unique
+  screenings ScreeningSeat[]
+}
+
+model ScreeningSeat {
+  screeningId String
+  seatId      String
+
+  @@id([screeningId, seatId])
+
+  screening Screening @relation(fields: [screeningId], references: [id])
+  seat      Seat      @relation(fields: [seatId], references: [id])
 }
 
 
@@ -31,7 +52,7 @@ model Bookmark {
   movieId String
   userId  String
   user    User   @relation(fields: [userId], references: [id])
-  @@unique([ movieId, userId ])
+  @@unique([movieId, userId])
 }
 
 model Screening {
