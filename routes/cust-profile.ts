@@ -32,6 +32,7 @@ customizationRouter.patch("/:id", async (req, res) => {
       where: { id: idFromParams },
       data: parsedBody,
     });
+    // response status 200 OK
     return res.status(200).json({ user: updatedUser });
   } catch (error) {
     if (error instanceof ZodError) {

@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/db";
 
-const prisma = new PrismaClient();
 export const reservationsRouter = Router();
 
 reservationsRouter.post("/select-seats-reservation", async (req, res) => {
@@ -35,6 +34,25 @@ reservationsRouter.post("/select-seats-reservation", async (req, res) => {
       return res
         .status(409)
         .json({ message: "Some seats are already booked", alreadyBookedSeats });
+    }
+
+    // Check if the seats exist
+    const existingSeats = await prisma.seat.findMany({
+      where: {
+        id: {
+          in: seats,
+        },
+      },
+    });
+
+    const nonExistingSeats = seats.filter(
+      (seat: string) => !existingSeats.some((s) => s.id === seat)
+    );
+
+    if (nonExistingSeats.length > 0) {
+      return res
+        .status(404)
+        .json({ message: "Some seats do not exist", nonExistingSeats });
     }
 
     // Add the new seats to the screening
