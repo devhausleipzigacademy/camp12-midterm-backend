@@ -9,6 +9,8 @@ import { reservationsRouter } from "./routes/reservations";
 import { timesRouter } from "./routes/times";
 import { prisma, sql } from "./lib/db";
 import dotenv from "dotenv";
+import { seatsRouter } from "./routes/select-seats";
+
 import cors from "cors";
 import jwt from "jsonwebtoken";
 
@@ -49,6 +51,8 @@ app.use("/profile", customizationRouter);
 app.use("/registration", registrationRouter);
 app.use("/login", loginRouter);
 app.use("/reservations", reservationsRouter);
+app.use("/reserved-seats", seatsRouter);
+
 
 app.get("/protected", protectionMiddleware, async (req, res) => {
   const users = await prisma.user.findMany();

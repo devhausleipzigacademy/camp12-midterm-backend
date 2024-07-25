@@ -1,29 +1,50 @@
 import { Router } from "express";
-import fs from "fs";
-
-type Screening = {
-  id: string;
-  date: string;
-  time: string;
-  bookedSeats: string[];
-};
+import { addDays, eachDayOfInterval, format } from "date-fns";
+import { prisma } from "../lib/db";
+import { access } from "fs";
 
 const SeatsTotal = 44;
 
-function getDB() {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  return JSON.parse(dbFile);
-}
-
 export const timesRouter = Router();
 
-timesRouter.get("/", (_, res) => {
-  const db = getDB();
-  console.log(db);
+timesRouter.get("/", async (req, res) => {
+  try {
+    const today = new Date();
 
-  const availableTimes = db.screening
-    .filter((screening: Screening) => screening.bookedSeats.length < SeatsTotal)
-    .map((screening: Screening) => screening.time);
+    const unformattedDatesNextWeek = eachDayOfInterval({
+      start: new Date(today),
+      end: new Date(addDays(today, 6)),
+    });
 
-  res.json(availableTimes);
+    const datesNextWeek = unformattedDatesNextWeek.map((date) =>
+      format(date, "dd-MM-yyyy")
+    );
+
+    const screenings = await prisma.screening.findMany({
+      where: {
+        date: {
+          in: datesNextWeek,
+        },
+      },
+    });
+
+    const availableTimes = screenings.reduce<{ [key: string]: string[] }>(
+      (acc, screening) => {
+        if (!acc[screening.date]) {
+          acc[screening.date] = [];
+        }
+
+        if (screening.bookedSeats.length < SeatsTotal) {
+          acc[screening.date].push(screening.time);
+        }
+
+        return acc;
+      },
+      {}
+    );
+    res.json(availableTimes);
+  } catch (error) {
+    console.error("Error fetching available times:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
