@@ -1,278 +1,59 @@
 import { prisma } from "../lib/db";
 
 async function main() {
-  // Clear existing data
+  await prisma.reservation.deleteMany();
+  await prisma.screening.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.screening.deleteMany();
-  await prisma.bookmark.deleteMany();
-  await prisma.seat.deleteMany();
-  await prisma.screening.deleteMany();
 
-  // Seed users
-  const users = [
-    {
+  // define a screening
+
+  const screening = await prisma.screening.create({
+    data: {
+      id: "1c5feb0a-afaf-4ca8-a68a-5731ff1d3027",
+      date: "24-06-2024",
+      time: "12:30",
+      movieId: "12345",
+    },
+  });
+
+  const user = await prisma.user.create({
+    data: {
+      id: "ddeeba94-b5a2-4eb4-8229-0b2b3630ecf3",
+
       email: "dan@devhausleipzig.de",
       firstName: "Dan",
       lastName: "McAtee",
       password: "test123",
+      reservations: {
+        create: [
+          {
+            screeningId: screening.id,
+            bookedSeats: [`A1`, `A2`],
+          },
+          {
+            screeningId: screening.id,
+            bookedSeats: [`B3`, "B4"],
+          },
+        ],
+      },
     },
-    {
-      email: "taylor@devhausleipzig.de",
-      firstName: "Taylor",
-      lastName: "Harvey",
-      password: "test123",
-    },
-    {
-      email: "franz@devhausleipzig.de",
-      firstName: "Franz",
-      lastName: "Wollang",
-      password: "test123",
-    },
-    {
-      email: "nikita@devhausleipzig.de",
-      firstName: "Nikita",
-      lastName: "Nakropin",
-      password: "test123",
-    },
-  ];
-
-  const createdUsers = [];
-  for (const user of users) {
-    const createdUser = await prisma.user.create({ data: user });
-    createdUsers.push(createdUser);
-  }
+  });
 
   // Seed bookmarks
   const bookmarks = [
     {
       movieId: "653346",
-      user: { connect: { id: createdUsers[0].id } },
-    },
-    {
-      movieId: "653346",
-      user: { connect: { id: createdUsers[2].id } },
-    },
-    {
-      movieId: "653346",
-      user: { connect: { id: createdUsers[0].id } },
+      user: { connect: { id: user.id } },
     },
     {
       movieId: "693134",
-      user: { connect: { id: createdUsers[1].id } },
-    },
-    {
-      movieId: "693134",
-      user: { connect: { id: createdUsers[0].id } },
+      user: { connect: { id: user.id } },
     },
   ];
 
-  const screenings: Prisma.ScreeningCreateInput[] = [
-    {
-      date: "24-07-2024",
-      time: "10:00",
-      bookedSeats: ["A1", "B1", "C1", "D1", "E1", "F1"],
-      movieId: "movie1-id",
-    },
-    {
-      date: "24-07-2024",
-      time: "14:00",
-      bookedSeats: ["A2", "B2", "C2", "D2", "E2", "F2"],
-      movieId: "movie2-id",
-    },
-    {
-      date: "25-07-2024",
-      time: "16:00",
-      bookedSeats: ["A3", "B3", "C3", "D3", "E3", "F3"],
-      movieId: "movie3-id",
-    },
-    {
-      date: "26-07-2024",
-      time: "18:00",
-      bookedSeats: ["A4", "B4", "C4", "D4", "E4", "F4"],
-      movieId: "movie4-id",
-    },
-    {
-      date: "27-07-2024",
-      time: "20:00",
-      bookedSeats: ["A5", "B5", "C5", "D5", "E5", "F5"],
-      movieId: "movie5-id",
-    },
-    {
-      date: "25-07-2024",
-      time: "12:00",
-      bookedSeats: [
-        "A1",
-        "B1",
-        "C1",
-        "D1",
-        "E1",
-        "F1",
-        "A2",
-        "B2",
-        "C2",
-        "D2",
-        "E2",
-        "F2",
-        "A3",
-        "B3",
-        "C3",
-        "D3",
-        "E3",
-        "F3",
-        "A4",
-        "B4",
-        "C4",
-        "D4",
-        "E4",
-        "F4",
-        "A5",
-        "B5",
-        "C5",
-        "D5",
-        "E5",
-        "F5",
-        "A6",
-        "B6",
-        "C6",
-        "D6",
-        "E6",
-        "F6",
-      ],
-      movieId: "movie6-id",
-    },
-    {
-      date: "25-08-2024",
-      time: "15:00",
-      bookedSeats: [
-        "A1",
-        "B1",
-        "C1",
-        "D1",
-        "E1",
-        "F1",
-        "A2",
-        "B2",
-        "C2",
-        "D2",
-        "E2",
-        "F2",
-        "A3",
-        "B3",
-        "C3",
-        "D3",
-        "E3",
-        "F3",
-        "A4",
-        "B4",
-        "C4",
-        "D4",
-        "E4",
-        "F4",
-        "A5",
-        "B5",
-        "C5",
-        "D5",
-        "E5",
-        "F5",
-        "A6",
-        "B6",
-        "C6",
-        "D6",
-        "E6",
-        "F6",
-      ],
-      movieId: "movie7-id",
-    },
-    {
-      date: "01-09-2024",
-      time: "21:00",
-      bookedSeats: [
-        "A1",
-        "B1",
-        "C1",
-        "D1",
-        "E1",
-        "F1",
-        "A2",
-        "B2",
-        "C2",
-        "D2",
-        "E2",
-        "F2",
-        "A3",
-        "B3",
-        "C3",
-        "D3",
-        "E3",
-        "F3",
-        "A4",
-        "B4",
-        "C4",
-        "D4",
-        "E4",
-        "F4",
-        "A5",
-        "B5",
-        "C5",
-        "D5",
-        "E5",
-        "F5",
-        "A6",
-        "B6",
-        "C6",
-        "D6",
-        "E6",
-        "F6",
-      ],
-      movieId: "movie8-id",
-    },
-  ];
-
-  for (const user of users) {
-    await prisma.user.create({ data: user });
-  }
-  for (const screening of screenings) {
-    await prisma.screening.create({ data: screening });
-  }
 
   for (const bookmark of bookmarks) {
     await prisma.bookmark.create({ data: bookmark });
-  }
-
-  // Seed seats
-  const seatIds = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"];
-  for (const seatId of seatIds) {
-    await prisma.seat.create({ data: { id: seatId } });
-  }
-
-  // Seed screenings with seats
-  const screenings = [
-    {
-      date: new Date("2024-07-16T17:00:00Z"),
-      time: new Date("2024-07-16T17:00:00Z"),
-      seats: {
-        create: [
-          { seat: { connect: { id: "A1" } } },
-          { seat: { connect: { id: "A2" } } },
-          { seat: { connect: { id: "A3" } } },
-        ],
-      },
-    },
-    {
-      date: new Date("2024-07-16T20:00:00Z"),
-      time: new Date("2024-07-16T20:00:00Z"),
-      seats: {
-        create: [
-          { seat: { connect: { id: "B1" } } },
-          { seat: { connect: { id: "B2" } } },
-          { seat: { connect: { id: "B3" } } },
-        ],
-      },
-    },
-  ];
-
-  for (const screening of screenings) {
-    await prisma.screening.create({ data: screening });
   }
 }
 

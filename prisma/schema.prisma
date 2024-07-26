@@ -8,44 +8,38 @@ datasource db {
 }
 
 model User {
-  id          String      @id @default(uuid())
-  email       String      @unique
+  id          String  @id @default(uuid())
+  email       String  @unique
   firstName   String
   lastName    String
   password    String
   avatarImage String?
-  games       Game[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reservations Reservation[]
   bookmarks   Bookmark[]
 }
 
-model Game {
-  id     String @id @default(uuid())
-  name   String
-  owners User[]
+model Reservation {
+  id          String   @id @default(uuid())
+  bookedSeats String[]
+
+  screeningId String
+  screening   Screening @relation(fields: [screeningId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
 }
 
 model Screening {
-  id       String   @id @default(uuid())
-  date     DateTime
-  time     DateTime
-  seats    ScreeningSeat[]
+  id      String @id @default(uuid())
+  date    String
+  time    String
+  movieId String
+
+  reservations Reservation[]
 }
-
-model Seat {
-  id         String           @id @unique
-  screenings ScreeningSeat[]
-}
-
-model ScreeningSeat {
-  screeningId String
-  seatId      String
-
-  @@id([screeningId, seatId])
-
-  screening Screening @relation(fields: [screeningId], references: [id])
-  seat      Seat      @relation(fields: [seatId], references: [id])
-}
-
 
 model Bookmark {
   id      String @id @default(uuid())
@@ -53,76 +47,4 @@ model Bookmark {
   userId  String
   user    User   @relation(fields: [userId], references: [id])
   @@unique([movieId, userId])
-}
-
-model Screening {
-  id    String   @id @unique @default(uuid())
-  date  DateTime
-  time  DateTime
-  seats Seat[]
-}
-
-model Seat {
-  name        SeatName
-  id          String    @id @unique @default(uuid())
-  screening   Screening @relation(fields: [screeningId], references: [id])
-  screeningId String
-  price       Float
-
-  @@unique([name, screeningId])
-}
-
-enum SeatName {
-  A1
-  A2
-  A3
-  A4
-  A5
-  A6
-  B1
-  B2
-  B3
-  B4
-  B5
-  B6
-  B7
-  B8
-  C1
-  C2
-  C3
-  C4
-  C5
-  C6
-  C7
-  C8
-  D1
-  D2
-  D3
-  D4
-  D5
-  D6
-  D7
-  D8
-  E1
-  E2
-  E3
-  E4
-  E5
-  E6
-  E7
-  E8
-  F1
-  F2
-  F3
-  F4
-  F5
-  F6
-}
-
-model Screening {
-  id          String   @id @default(uuid())
-  date        String
-  time        String
-  bookedSeats String[]
-  movieId     String
 }
