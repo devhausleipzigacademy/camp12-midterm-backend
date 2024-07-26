@@ -18,7 +18,7 @@ export const usersRouter = Router();
 
 // Get all users
 usersRouter.get("/", async (_, res) => {
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({ include: { reservations: true } });
   const date = new Date(users[0].createdAt).toLocaleDateString();
   console.log(date);
 
