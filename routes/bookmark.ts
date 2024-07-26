@@ -3,8 +3,11 @@ import { prisma } from "../lib/db"
 
 export const bookmarkRouter = Router();
 
-bookmarkRouter.get("/:userId", async (req, res) => {
-  const userId = req.params.userId;
+bookmarkRouter.get("/", async (req, res) => {
+  const userId = req.headers.userId as string
+  console.log(userId);
+  
+  // const userId = req.params.userId;
   try {
     // check if there is user found
     const user = await prisma.user.findUnique({
@@ -19,7 +22,7 @@ bookmarkRouter.get("/:userId", async (req, res) => {
     // if thats the case, then look for the bookmarks
     const bookmarks = await prisma.bookmark.findMany({
       where: {
-        userId: userId
+        userId
       },
       include: {
         user: true
@@ -34,8 +37,8 @@ bookmarkRouter.get("/:userId", async (req, res) => {
   }
 });
 
-bookmarkRouter.post("/:userId/:movieId", async (req, res) => {
-  const userId = req.params.userId;
+bookmarkRouter.post("/:movieId", async (req, res) => {
+  const userId = req.headers.userId as string
   const movieId = req.params.movieId;
 
   try {

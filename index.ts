@@ -26,6 +26,10 @@ const protectionMiddleware = (
 
   try {
     jwt.verify(token, process.env.JWT_SECRET!);
+    const payload = jwt.decode(token) as {id: string}
+
+    req.headers["userId"] = payload.id
+    
   } catch (error) {
     return res.status(401).json({ error: "Not authorized" });
   }
@@ -46,7 +50,7 @@ app.use("/hello", helloRouter);
 app.use("/users", protectionMiddleware, usersRouter);
 app.use("/login", loginRouter);
 app.use("/times", timesRouter);
-app.use("/bookmarks", bookmarkRouter);
+app.use("/bookmarks", protectionMiddleware, bookmarkRouter);
 app.use("/profile", customizationRouter);
 app.use("/registration", registrationRouter);
 app.use("/login", loginRouter);
@@ -58,8 +62,6 @@ app.get("/protected", protectionMiddleware, async (req, res) => {
   const users = await prisma.user.findMany();
   return res.json(users);
 });
-
-app.get("/bookmarks", async (_, res) => {});
 
 // Run server
 app.listen(3000, () => {
