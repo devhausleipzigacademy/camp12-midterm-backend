@@ -1,58 +1,76 @@
 import { Router } from "express";
-import fs from "fs";
-
-type User = {
-  id: string;
-  bookmarks: string[]
-};
-
-type DB = {
-  users: User[];
-};
-
-function getDB(): DB {
-  const dbFile = fs.readFileSync("./db.json", { encoding: "utf-8" });
-  return JSON.parse(dbFile) as DB;
-}
+import { prisma } from "../lib/db"
 
 export const bookmarkRouter = Router();
 
-// Send User with bookmarks back
-bookmarkRouter.get("/:uuid", (req, res) => {
-  const db = getDB();
-  const uuid = req.params.uuid;
-  const user = db.users.find(u => u.id === uuid);
-  
-  //Return 404 if no user found
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+bookmarkRouter.get("/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    // check if there is user found
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // if thats the case, then look for the bookmarks
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId: userId
+      },
+      include: {
+        user: true
+      }
+    });
+    const movieIds = bookmarks.map(bookmark => bookmark.movieId);
+    res.json(movieIds);
   }
-  res.json(user.bookmarks);
+  catch (error) {
+    console.error("Error fetching bookmarks:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
-bookmarkRouter.post("/:uuid/:movieId", (req, res) => {
-  const db = getDB();
-  const uuid = req.params.uuid;
+bookmarkRouter.post("/:userId/:movieId", async (req, res) => {
+  const userId = req.params.userId;
   const movieId = req.params.movieId;
-  const userIndex = db.users.findIndex(u => u.id === uuid);
 
-  //Return 404 if no user found
-  if (userIndex === -1) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    // Check if the user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the movie ID is already in the user's bookmarks
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { movieId_userId: { movieId, userId } },
+    });
+    if (bookmark) {
+      // If it exists, remove it
+      await prisma.bookmark.delete({
+        where: { id: bookmark.id },
+      });
+    } else {
+      // If it doesn't exist, add it
+      await prisma.bookmark.create({
+        data: { movieId, userId },
+      });
+    }
+
+    // Get the updated user with bookmarks
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { bookmarks: { select: { movieId: true } } },
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating bookmarks:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  const user = db.users[userIndex];
-
-  // Has our user bookmarks array have the movieID?
-  if (user.bookmarks.includes(movieId)) {
-    // if so, remove it
-    user.bookmarks = user.bookmarks.filter(id => id !== movieId);
-  } else {
-    // else add it
-    user.bookmarks.push(movieId);
-  }
-
-  // Save on DB
-  fs.writeFileSync("./db.json", JSON.stringify(db, null, 2));
-  res.status(200).json({ bookmarks: user.bookmarks });
 });

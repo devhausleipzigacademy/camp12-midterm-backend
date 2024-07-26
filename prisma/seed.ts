@@ -16,9 +16,10 @@ async function main() {
     },
   });
 
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       id: "ddeeba94-b5a2-4eb4-8229-0b2b3630ecf3",
+
       email: "dan@devhausleipzig.de",
       firstName: "Dan",
       lastName: "McAtee",
@@ -37,6 +38,23 @@ async function main() {
       },
     },
   });
+
+  // Seed bookmarks
+  const bookmarks = [
+    {
+      movieId: "653346",
+      user: { connect: { id: user.id } },
+    },
+    {
+      movieId: "693134",
+      user: { connect: { id: user.id } },
+    },
+  ];
+
+
+  for (const bookmark of bookmarks) {
+    await prisma.bookmark.create({ data: bookmark });
+  }
 }
 
 main().then(() => process.exit(0));
