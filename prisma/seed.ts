@@ -1,9 +1,12 @@
 import { prisma } from "../lib/db";
+import bcrypt from "bcrypt";
 
 async function main() {
   await prisma.reservation.deleteMany();
   await prisma.screening.deleteMany();
+  await prisma.bookmark.deleteMany();
   await prisma.user.deleteMany();
+
 
   // define a screening
 
@@ -16,6 +19,9 @@ async function main() {
     },
   });
 
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash("test123", salt);
+
   const user = await prisma.user.create({
     data: {
       id: "ddeeba94-b5a2-4eb4-8229-0b2b3630ecf3",
@@ -23,7 +29,7 @@ async function main() {
       email: "dan@devhausleipzig.de",
       firstName: "Dan",
       lastName: "McAtee",
-      password: "test123",
+      password: hashedPassword,
       reservations: {
         create: [
           {
